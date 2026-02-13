@@ -17,4 +17,17 @@ internal class Routes {
         value.removeAt(value.size - 1)
         _screens.value = value
     }
+
+    fun back(route: String) {
+        val value = mutableListOf<String>()
+        val actual = _screens.value
+        for (it in actual) {
+            value += it
+            if (it == route) {
+                _screens.value = value
+                return
+            }
+        }
+        TODO()
+    }
 }

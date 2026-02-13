@@ -50,6 +50,14 @@ internal fun MainScreen() {
                     .wrapContentSize(),
                 text = "bar",
             )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable { routes.next(route = "v0") }
+                    .wrapContentSize(),
+                text = "to -> v0",
+            )
         }
         AnimatedVisibility(
             visible = screens.contains("foo"),
@@ -64,6 +72,13 @@ internal fun MainScreen() {
             exit = fadeOut(),
         ) {
             BarScreen(onBack = routes::back)
+        }
+        AnimatedVisibility(
+            visible = screens.contains("v0"),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            V0Screen(onBack = routes::back)
         }
     }
 }
@@ -97,5 +112,159 @@ internal fun BarScreen(onBack: () -> Unit) {
             ),
     ) {
         BackHandler(onBack = onBack)
+    }
+}
+
+@Composable
+internal fun V0Screen(onBack: () -> Unit) {
+    val routes = App.routes()
+    val screens = routes.screens.collectAsState().value
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .clickable(
+                interactionSource = null,
+                indication = null,
+                onClick = { /* noop */ },
+            ),
+    ) {
+        BackHandler(onBack = onBack)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center),
+        ) {
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .wrapContentSize(),
+                text = "v0",
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable { routes.next(route = "v1") }
+                    .wrapContentSize(),
+                text = "to -> v1",
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable(onClick = onBack)
+                    .wrapContentSize(),
+                text = "back",
+            )
+        }
+        AnimatedVisibility(
+            visible = screens.contains("v1"),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            V1Screen(onBack = routes::back)
+        }
+    }
+}
+
+@Composable
+internal fun V1Screen(onBack: () -> Unit) {
+    val routes = App.routes()
+    val screens = routes.screens.collectAsState().value
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .clickable(
+                interactionSource = null,
+                indication = null,
+                onClick = { /* noop */ },
+            ),
+    ) {
+        BackHandler(onBack = onBack)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center),
+        ) {
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .wrapContentSize(),
+                text = "v1",
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable { routes.next(route = "v2") }
+                    .wrapContentSize(),
+                text = "to -> v2",
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable(onClick = onBack)
+                    .wrapContentSize(),
+                text = "back",
+            )
+        }
+        AnimatedVisibility(
+            visible = screens.contains("v2"),
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            V2Screen(onBack = routes::back)
+        }
+    }
+}
+
+@Composable
+internal fun V2Screen(onBack: () -> Unit) {
+    val routes = App.routes()
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)
+            .clickable(
+                interactionSource = null,
+                indication = null,
+                onClick = { /* noop */ },
+            ),
+    ) {
+        BackHandler(onBack = onBack)
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center),
+        ) {
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .wrapContentSize(),
+                text = "v2",
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable { routes.back(route = "v0") }
+                    .wrapContentSize(),
+                text = "complete",
+            )
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable(onClick = onBack)
+                    .wrapContentSize(),
+                text = "back",
+            )
+        }
     }
 }
