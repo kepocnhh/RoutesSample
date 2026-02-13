@@ -2,10 +2,15 @@ package test.android.routes
 
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.compose.ui.platform.ComposeView
 
 internal class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        // todo
+        val view = ComposeView(this)
+        setContentView(view)
+        view.setContent {
+            MainScreen()
+        }
     }
 }
