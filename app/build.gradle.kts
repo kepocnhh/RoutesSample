@@ -53,5 +53,5 @@ androidComponents.onVariants { variant ->
 
 dependencies {
     implementation(compose.foundation)
-    implementation("androidx.activity:activity:1.12.4")
+    implementation("androidx.activity:activity-compose:1.12.4")
 }
