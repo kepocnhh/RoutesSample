@@ -3,6 +3,7 @@ package test.android.routes
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateOffsetAsState
@@ -134,8 +135,13 @@ internal fun V0Screen(onBack: () -> Unit) {
     val size = LocalWindowInfo.current.containerSize
     val animatable = remember { Animatable(size.width.dp, Dp.VectorConverter, null, "v0") }
     LaunchedEffect(screens.size) {
-        val value = if ("v0" == screens.lastOrNull()) 0.dp else size.width.dp
-        animatable.animateTo(value, tween())
+//        val value = if ("v0" == screens.lastOrNull()) 0.dp else size.width.dp
+        val value = when {
+            !screens.contains("v0") -> size.width.dp
+            "v0" == screens.lastOrNull() -> 0.dp
+            else -> -size.width.dp
+        }
+        animatable.animateTo(value, tween(easing = LinearEasing))
     }
     val x = animatable.asState().value
     LaunchedEffect(x) {
