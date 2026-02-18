@@ -1,9 +1,10 @@
 package test.android.routes
 
+import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-internal class Routes {
+class Routes {
     data class State(
         val stack: List<String>,
         val previous: String?,
@@ -50,3 +51,5 @@ internal class Routes {
         TODO()
     }
 }
+
+val LocalRoutes = staticCompositionLocalOf { Routes() }

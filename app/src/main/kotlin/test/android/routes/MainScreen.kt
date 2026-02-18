@@ -3,7 +3,7 @@ package test.android.routes
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -11,12 +11,15 @@ import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxScope
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,14 +28,12 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun MainScreen() {
-    val routes = App.routes()
-    val state = routes.states.collectAsState().value
+    val routes = LocalRoutes.current
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -47,114 +48,81 @@ internal fun MainScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.next(route = "foo") }
-                    .wrapContentSize(),
-                text = "foo",
-            )
-            BasicText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .clickable { routes.next(route = "bar") }
-                    .wrapContentSize(),
-                text = "bar",
-            )
-            BasicText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
                     .clickable { routes.next(route = "v0") }
                     .wrapContentSize(),
                 text = "to -> v0",
             )
         }
+    }
+    V0Screen(
+        routes = routes,
+        onBack = routes::back,
+    )
+}
+
+@Composable
+internal fun RouteScreen(
+    modifier: Modifier,
+    routes: Routes,
+    route: String,
+    content: @Composable BoxScope.() -> Unit,
+    foreground: @Composable BoxScope.() -> Unit,
+) {
+    val state = routes.states.collectAsState().value
+    BoxWithConstraints(modifier = modifier) {
         AnimatedVisibility(
-            visible = state.stack.contains("foo"),
+            modifier = Modifier.fillMaxSize(),
+            visible = state.stack.contains(route),
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
-            FooScreen(onBack = routes::back)
-        }
-        AnimatedVisibility(
-            visible = state.stack.contains("bar"),
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            BarScreen(onBack = routes::back)
-        }
-        AnimatedVisibility(
-            visible = state.stack.contains("v0"),
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            V0Screen(onBack = routes::back)
+            val animatable = remember { Animatable(maxWidth, Dp.VectorConverter, null, route) }
+            LaunchedEffect(state.stack.size) {
+                val value = when {
+                    !state.stack.contains(route) -> maxWidth
+                    route == state.stack.lastOrNull() -> 0.dp
+                    else -> -maxWidth
+                }
+                animatable.animateTo(value, tween(easing = FastOutSlowInEasing))
+            }
+            Box(modifier = Modifier.fillMaxSize().offset(x = animatable.asState().value), content = content)
+            Box(modifier = Modifier.fillMaxSize(), content = foreground)
         }
     }
 }
 
 @Composable
-internal fun FooScreen(onBack: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Red)
-            .clickable(
-                interactionSource = null,
-                indication = null,
-                onClick = { /* noop */ },
-            ),
-    ) {
-        BackHandler(onBack = onBack)
-    }
-}
-
-@Composable
-internal fun BarScreen(onBack: () -> Unit) {
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(Color.Green)
-            .clickable(
-                interactionSource = null,
-                indication = null,
-                onClick = { /* noop */ },
-            ),
-    ) {
-        BackHandler(onBack = onBack)
-    }
+internal fun V0Screen(
+    routes: Routes,
+    onBack: () -> Unit,
+) {
+    RouteScreen(
+        modifier = Modifier.fillMaxSize(),
+        routes = routes,
+        route = "v0",
+        content = {
+            V0Screen(onBack = onBack)
+        },
+        foreground = {
+            V1Screen(routes = routes, onBack = routes::back)
+        },
+    )
 }
 
 @Composable
 internal fun V0Screen(onBack: () -> Unit) {
-    val routes = App.routes()
-    val state = routes.states.collectAsState().value
-    val size = LocalWindowInfo.current.containerSize
-    val animatable = remember { Animatable(size.width.dp, Dp.VectorConverter, null, "v0") }
-    LaunchedEffect(state.stack.size) {
-//        val value = if ("v0" == screens.lastOrNull()) 0.dp else size.width.dp
-        val value = when {
-            !state.stack.contains("v0") -> size.width.dp
-            "v0" == state.stack.lastOrNull() -> 0.dp
-            else -> -size.width.dp
-        }
-        animatable.animateTo(value, tween(easing = LinearEasing))
-    }
-    val x = animatable.asState().value
-    LaunchedEffect(x) {
-        println("x: $x")
-    }
+    val routes = LocalRoutes.current
+    BackHandler(onBack = onBack)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .offset(x = x)
-            .background(Color.Red)
+            .background(color = Color.Red, shape = RoundedCornerShape(16.dp))
             .clickable(
                 interactionSource = null,
                 indication = null,
                 onClick = { /* noop */ },
             ),
     ) {
-        BackHandler(onBack = onBack)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -171,7 +139,9 @@ internal fun V0Screen(onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.next(route = "v1") }
+                    .clickable {
+                        routes.next(route = "v1")
+                    }
                     .wrapContentSize(),
                 text = "to -> v1",
             )
@@ -185,20 +155,36 @@ internal fun V0Screen(onBack: () -> Unit) {
             )
         }
     }
-    AnimatedVisibility(
+}
+
+@Composable
+internal fun V1Screen(
+    routes: Routes,
+    onBack: () -> Unit,
+) {
+    RouteScreen(
         modifier = Modifier.fillMaxSize(),
-        visible = state.stack.contains("v1"),
-        enter = fadeIn(),
-        exit = fadeOut(),
-    ) {
-        V1Screen(onBack = routes::back)
-    }
+        routes = routes,
+        route = "v1",
+        content = {
+            V1Screen(onBack = onBack)
+        },
+        foreground = {
+            V2Screen(
+                routes = routes,
+                onBack = routes::back,
+                onComplete = {
+                    routes.back(route = "v0")
+                },
+            )
+        },
+    )
 }
 
 @Composable
 internal fun V1Screen(onBack: () -> Unit) {
-    val routes = App.routes()
-    val state = routes.states.collectAsState().value
+    val routes = LocalRoutes.current
+    BackHandler(onBack = onBack)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -209,7 +195,6 @@ internal fun V1Screen(onBack: () -> Unit) {
                 onClick = { /* noop */ },
             ),
     ) {
-        BackHandler(onBack = onBack)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -226,7 +211,9 @@ internal fun V1Screen(onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.next(route = "v2") }
+                    .clickable {
+                        routes.next(route = "v2")
+                    }
                     .wrapContentSize(),
                 text = "to -> v2",
             )
@@ -239,19 +226,34 @@ internal fun V1Screen(onBack: () -> Unit) {
                 text = "back",
             )
         }
-        AnimatedVisibility(
-            visible = state.stack.contains("v2"),
-            enter = fadeIn(),
-            exit = fadeOut(),
-        ) {
-            V2Screen(onBack = routes::back)
-        }
     }
 }
 
 @Composable
-internal fun V2Screen(onBack: () -> Unit) {
-    val routes = App.routes()
+internal fun V2Screen(
+    routes: Routes,
+    onBack: () -> Unit,
+    onComplete: () -> Unit,
+) {
+    RouteScreen(
+        modifier = Modifier.fillMaxSize(),
+        routes = routes,
+        route = "v2",
+        content = {
+            V2Screen(onBack = onBack, onComplete = onComplete)
+        },
+        foreground = {
+            // todo
+        },
+    )
+}
+
+@Composable
+internal fun V2Screen(
+    onBack: () -> Unit,
+    onComplete: () -> Unit,
+) {
+    BackHandler(onBack = onBack)
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -262,7 +264,6 @@ internal fun V2Screen(onBack: () -> Unit) {
                 onClick = { /* noop */ },
             ),
     ) {
-        BackHandler(onBack = onBack)
         Column(
             modifier = Modifier
                 .fillMaxWidth()
@@ -279,7 +280,9 @@ internal fun V2Screen(onBack: () -> Unit) {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.back(route = "v0") }
+                    .clickable {
+                        onComplete()
+                    }
                     .wrapContentSize(),
                 text = "complete",
             )
