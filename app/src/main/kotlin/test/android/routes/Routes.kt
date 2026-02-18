@@ -4,27 +4,46 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 internal class Routes {
-    private val _screens = MutableStateFlow<List<String>>(emptyList())
-    val screens = _screens.asStateFlow()
+    data class State(
+        val stack: List<String>,
+        val previous: String?,
+    )
+
+    private val _states = MutableStateFlow(State(stack = emptyList(), previous = null))
+    val states = _states.asStateFlow()
 
     fun next(route: String) {
-        _screens.value += route
+        val state = _states.value
+        if (state.stack.contains(route)) TODO()
+        _states.value = state.copy(
+            stack = state.stack + route,
+            previous = state.stack.lastOrNull(),
+        )
     }
 
     fun back() {
-        val value = _screens.value.toMutableList()
-        if (value.isEmpty()) TODO()
-        value.removeAt(value.size - 1)
-        _screens.value = value
+        val state = _states.value
+        val stack = state.stack.toMutableList()
+        if (stack.isEmpty()) TODO()
+        val previous = stack.removeAt(stack.size - 1)
+        _states.value = state.copy(
+            stack = stack,
+            previous = previous,
+        )
     }
 
     fun back(route: String) {
-        val value = mutableListOf<String>()
-        val actual = _screens.value
-        for (it in actual) {
-            value += it
+        val stack = mutableListOf<String>()
+        val state = _states.value
+        val previous = state.stack.lastOrNull()
+        if (route == previous) TODO()
+        for (it in state.stack) {
+            stack += it
             if (it == route) {
-                _screens.value = value
+                _states.value = state.copy(
+                    stack = stack,
+                    previous = previous,
+                )
                 return
             }
         }

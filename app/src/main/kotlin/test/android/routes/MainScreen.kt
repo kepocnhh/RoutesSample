@@ -5,8 +5,6 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateOffsetAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -23,12 +21,10 @@ import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -36,7 +32,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun MainScreen() {
     val routes = App.routes()
-    val screens = routes.screens.collectAsState().value
+    val state = routes.states.collectAsState().value
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -73,21 +69,21 @@ internal fun MainScreen() {
             )
         }
         AnimatedVisibility(
-            visible = screens.contains("foo"),
+            visible = state.stack.contains("foo"),
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
             FooScreen(onBack = routes::back)
         }
         AnimatedVisibility(
-            visible = screens.contains("bar"),
+            visible = state.stack.contains("bar"),
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
             BarScreen(onBack = routes::back)
         }
         AnimatedVisibility(
-            visible = screens.contains("v0"),
+            visible = state.stack.contains("v0"),
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
@@ -131,14 +127,14 @@ internal fun BarScreen(onBack: () -> Unit) {
 @Composable
 internal fun V0Screen(onBack: () -> Unit) {
     val routes = App.routes()
-    val screens = routes.screens.collectAsState().value
+    val state = routes.states.collectAsState().value
     val size = LocalWindowInfo.current.containerSize
     val animatable = remember { Animatable(size.width.dp, Dp.VectorConverter, null, "v0") }
-    LaunchedEffect(screens.size) {
+    LaunchedEffect(state.stack.size) {
 //        val value = if ("v0" == screens.lastOrNull()) 0.dp else size.width.dp
         val value = when {
-            !screens.contains("v0") -> size.width.dp
-            "v0" == screens.lastOrNull() -> 0.dp
+            !state.stack.contains("v0") -> size.width.dp
+            "v0" == state.stack.lastOrNull() -> 0.dp
             else -> -size.width.dp
         }
         animatable.animateTo(value, tween(easing = LinearEasing))
@@ -191,7 +187,7 @@ internal fun V0Screen(onBack: () -> Unit) {
     }
     AnimatedVisibility(
         modifier = Modifier.fillMaxSize(),
-        visible = screens.contains("v1"),
+        visible = state.stack.contains("v1"),
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
@@ -202,7 +198,7 @@ internal fun V0Screen(onBack: () -> Unit) {
 @Composable
 internal fun V1Screen(onBack: () -> Unit) {
     val routes = App.routes()
-    val screens = routes.screens.collectAsState().value
+    val state = routes.states.collectAsState().value
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -244,7 +240,7 @@ internal fun V1Screen(onBack: () -> Unit) {
             )
         }
         AnimatedVisibility(
-            visible = screens.contains("v2"),
+            visible = state.stack.contains("v2"),
             enter = fadeIn(),
             exit = fadeOut(),
         ) {
