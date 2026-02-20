@@ -34,6 +34,7 @@ import androidx.compose.ui.unit.dp
 @Composable
 internal fun MainScreen() {
     val routes = LocalRoutes.current
+    val states = routes.states.collectAsState().value
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -48,16 +49,22 @@ internal fun MainScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.next(route = "v0") }
+                    .clickable { routes.next(route = "foo:list") }
                     .wrapContentSize(),
-                text = "to -> v0",
+                text = "to objects",
             )
         }
     }
-    V0Screen(
-        routes = routes,
-        onBack = routes::back,
-    )
+    AnimatedVisibility(
+        modifier = Modifier.fillMaxSize(),
+        visible = states.stack.contains("foo:list"),
+        enter = fadeIn(),
+        exit = fadeOut(),
+    ) {
+        FooListScreen(
+            onBack = routes::back,
+        )
+    }
 }
 
 @Composable
