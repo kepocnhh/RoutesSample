@@ -1,5 +1,6 @@
 package test.android.routes
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -16,12 +17,41 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 
 @Composable
-internal fun MainScreen() {
-    val routes = LocalRoutes.current
+internal fun MainScreen(
+    modifier: Modifier,
+    onBack: () -> Unit,
+) {
+    RoutesAnimations(
+        modifier = modifier,
+        route = "main",
+        content = { routes ->
+            MainScreen(
+                onBack = onBack,
+                toList = {
+                    routes.next("foo:list")
+                },
+            )
+        },
+        foreground = { routes ->
+            FooListScreen(
+                modifier = Modifier.fillMaxSize(),
+                onBack = routes::back,
+            )
+        },
+    )
+}
+
+@Composable
+internal fun MainScreen(
+    onBack: () -> Unit,
+    toList: () -> Unit,
+) {
+    BackHandler(onBack = onBack)
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.White),
+            .background(color = Color.Red)
+            .clickable(indication = null, interactionSource = null, onClick = { /* noop */ }),
     ) {
         Column(
             modifier = Modifier
@@ -32,14 +62,10 @@ internal fun MainScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.next(route = "foo:list") }
+                    .clickable(onClick = toList)
                     .wrapContentSize(),
                 text = "to objects",
             )
         }
     }
-    FooListScreen(
-        modifier = Modifier.fillMaxSize(),
-        onBack = routes::back,
-    )
 }

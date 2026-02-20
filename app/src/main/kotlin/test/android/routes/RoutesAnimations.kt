@@ -43,7 +43,10 @@ fun RoutesAnimations(
     ) {
         val width: Int = LocalWindowInfo.current.containerSize.width
         val animationSpec: AnimationSpec<Int> = tween(durationMillis = 250, easing = FastOutSlowInEasing)
-        val animatable = remember { Animatable(width, Int.VectorConverter, null, route) }
+        val animatable = remember {
+            val initialX: Int = if (route == routes.states.value.stack.firstOrNull()) 0 else width
+            Animatable(initialX, Int.VectorConverter, null, route)
+        }
         LaunchedEffect(route == state.stack.lastOrNull()) {
             val stack = routes.states.value.stack
             val value = when {

@@ -4,8 +4,8 @@ import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
-class Routes {
-    private val _states = MutableStateFlow(RoutesState(stack = emptyList()))
+class Routes(stack: List<String>) {
+    private val _states = MutableStateFlow(RoutesState(stack = stack))
     val states = _states.asStateFlow()
 
     fun next(route: String) {
@@ -38,4 +38,4 @@ class Routes {
     }
 }
 
-val LocalRoutes = staticCompositionLocalOf { Routes() }
+val LocalRoutes = staticCompositionLocalOf<Routes> { error("No routes!") }
