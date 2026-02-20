@@ -28,13 +28,16 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun MainScreen() {
     val routes = LocalRoutes.current
-    val states = routes.states.collectAsState().value
+    val state = routes.states.collectAsState().value
+    val route = "foo:list" // todo
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -49,7 +52,7 @@ internal fun MainScreen() {
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable { routes.next(route = "foo:list") }
+                    .clickable { routes.next(route = route) }
                     .wrapContentSize(),
                 text = "to objects",
             )
@@ -57,13 +60,29 @@ internal fun MainScreen() {
     }
     AnimatedVisibility(
         modifier = Modifier.fillMaxSize(),
-        visible = states.stack.contains("foo:list"),
+        visible = state.stack.contains(route),
         enter = fadeIn(),
         exit = fadeOut(),
     ) {
-        FooListScreen(
-            onBack = routes::back,
-        )
+        val width = LocalWindowInfo.current.containerSize.width
+        val animatable = remember { Animatable(width, Int.VectorConverter, null, route) }
+        LaunchedEffect(route == state.stack.lastOrNull()) {
+            val value = when {
+                !state.stack.contains(route) -> width
+                route == state.stack.lastOrNull() -> 0
+                else -> -width
+            }
+            animatable.animateTo(value, tween(easing = FastOutSlowInEasing))
+        }
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .offset { IntOffset(x = animatable.value, y = 0) },
+        ) {
+            FooListScreen(
+                onBack = routes::back,
+            )
+        }
     }
 }
 
