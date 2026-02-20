@@ -5,9 +5,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class Routes {
-    data class State(val stack: List<String>)
-
-    private val _states = MutableStateFlow(State(stack = emptyList()))
+    private val _states = MutableStateFlow(RoutesState(stack = emptyList()))
     val states = _states.asStateFlow()
 
     fun next(route: String) {
