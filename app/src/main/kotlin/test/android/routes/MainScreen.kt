@@ -22,50 +22,25 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 internal fun MainScreen(
+    modifier: Modifier,
     onBack: () -> Unit,
 ) {
     val routes = LocalRoutes.current
     val state = routes.states.collectAsState().value
     val windowInfo = LocalWindowInfo.current
     BackHandler(onBack = onBack)
-    Box(
-        modifier = Modifier
-            .fillMaxSize()
-            .background(color = Color.Red)
-            .animateXOffset(
-                animationSpec = tween(durationMillis = 250, easing = FastOutSlowInEasing),
-                label = "main",
-                initialValue = { 0 },
-                whenAnimate = { state.stack.isEmpty() },
-                targetValue = {
-                    if (routes.states.value.stack.isEmpty()) 0 else -windowInfo.containerSize.width
-                },
-            )
-            .clickable(indication = null, interactionSource = null, onClick = { /* noop */ }),
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.Center),
-        ) {
-            BasicText(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(48.dp)
-                    .clickable {
-                        routes.next("foo:list")
-                    }
-                    .wrapContentSize(),
-                text = "to objects",
-            )
-        }
+    Box(modifier = modifier) {
+        MainScreen(
+            toObjects = {
+                routes.next("foo:list")
+            },
+        )
     }
     RoutesAnimations(
         modifier = Modifier.fillMaxSize(),
-        state = state,
         route = "foo:list",
-        transitions = LocalRoutesTransitions.current,
-    ) { route ->
+    ) {
+        val route = "foo:list" // todo
         FooListScreen(
             modifier = Modifier
                 .fillMaxSize()
@@ -86,5 +61,32 @@ internal fun MainScreen(
                 ),
             onBack = routes::back,
         )
+    }
+}
+
+@Composable
+internal fun MainScreen(
+    toObjects: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = Color.Red)
+            .clickable(indication = null, interactionSource = null, onClick = { /* noop */ }),
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .align(Alignment.Center),
+        ) {
+            BasicText(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(48.dp)
+                    .clickable(onClick = toObjects)
+                    .wrapContentSize(),
+                text = "to objects",
+            )
+        }
     }
 }

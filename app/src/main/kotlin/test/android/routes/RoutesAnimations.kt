@@ -31,19 +31,18 @@ import androidx.compose.ui.unit.IntOffset
 @Composable
 fun RoutesAnimations(
     modifier: Modifier,
-    state: RoutesState,
     route: String,
-    transitions: RoutesTransitions,
-    content: @Composable AnimatedVisibilityScope.(route: String) -> Unit,
+    routes: Routes = LocalRoutes.current,
+    transitions: RoutesTransitions = LocalRoutesTransitions.current,
+    content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
+    val state = routes.states.collectAsState().value
     AnimatedVisibility(
         modifier = modifier,
         visible = state.stack.contains(route),
         enter = transitions.enter,
         exit = transitions.exit,
-        content = {
-            content(route)
-        },
+        content = content,
     )
 }
 
