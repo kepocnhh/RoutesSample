@@ -34,14 +34,16 @@ fun RoutesAnimations(
     state: RoutesState,
     route: String,
     transitions: RoutesTransitions,
-    content: @Composable AnimatedVisibilityScope.() -> Unit,
+    content: @Composable AnimatedVisibilityScope.(route: String) -> Unit,
 ) {
     AnimatedVisibility(
         modifier = modifier,
         visible = state.stack.contains(route),
         enter = transitions.enter,
         exit = transitions.exit,
-        content = content,
+        content = {
+            content(route)
+        },
     )
 }
 
@@ -75,14 +77,15 @@ fun animateXOffset(
     route: String,
     routes: Routes = LocalRoutes.current,
     windowInfo: WindowInfo = LocalWindowInfo.current,
+    initialValue: Int = windowInfo.containerSize.width,
     animationSpec: AnimationSpec<Int> = tween(durationMillis = 250, easing = FastOutSlowInEasing),
 ): Int {
     val state = routes.states.collectAsState().value
-    val width = windowInfo.containerSize.width
     val animatable = remember {
-        Animatable(windowInfo.containerSize.width, Int.VectorConverter, null, route)
+        Animatable(initialValue, Int.VectorConverter, null, route)
     }
     LaunchedEffect(route == state.stack.lastOrNull()) {
+        val width = windowInfo.containerSize.width
         val stack = routes.states.value.stack
         val value = when {
             !stack.contains(route) -> width
@@ -94,20 +97,57 @@ fun animateXOffset(
     return animatable.value
 }
 
-fun Modifier.animateXOffset(
-    width: Int,
+//@Composable
+//fun animateXOffset(
+//    route: String,
+//    routes: Routes = LocalRoutes.current,
+//    windowInfo: WindowInfo = LocalWindowInfo.current,
+//    initialValue: Int = windowInfo.containerSize.width,
+//    animationSpec: AnimationSpec<Int> = tween(durationMillis = 250, easing = FastOutSlowInEasing),
+//): Int {
+//    val state = routes.states.collectAsState().value
+//    val width = windowInfo.containerSize.width
+//    val animatable = remember {
+//        Animatable(initialValue, Int.VectorConverter, null, route)
+//    }
+//    LaunchedEffect(state.stack.isEmpty()) {
+//        val value = if (routes.states.value.stack.isEmpty()) 0 else -width
+//        animatable.animateTo(value, animationSpec)
+//    }
+//    return animatable.value
+//}
+
+@Composable
+fun animateXOffset(
+    windowInfo: WindowInfo,
     animationSpec: AnimationSpec<Int>,
+    initialValue: Int,
     label: String,
+    whenAnimate: () -> Any,
+    targetValue: (WindowInfo) -> Int,
+): (Density.() -> IntOffset) {
+    val animatable = remember {
+        Animatable(initialValue, Int.VectorConverter, null, label)
+    }
+    LaunchedEffect(whenAnimate()) {
+        animatable.animateTo(targetValue(windowInfo), animationSpec)
+    }
+    return { IntOffset(x = animatable.value, y = 0) }
+}
+
+fun Modifier.animateXOffset(
+    animationSpec: AnimationSpec<Int>,
+    initialValue: () -> Int,
+    label: String,
+    whenAnimate: () -> Any,
+    targetValue: () -> Int,
 ): Modifier {
     return composed {
-        val routes = LocalRoutes.current
-        val state = routes.states.collectAsState().value
         val animatable = remember {
-            Animatable(0, Int.VectorConverter, null, label)
+            Animatable(initialValue(), Int.VectorConverter, null, label)
         }
-        LaunchedEffect(state.stack.isEmpty()) {
-            val value = if (routes.states.value.stack.isEmpty()) 0 else -width
-            animatable.animateTo(value, animationSpec)
+        LaunchedEffect(whenAnimate()) {
+            animatable.animateTo(targetValue(), animationSpec)
         }
         Modifier.offset { IntOffset(x = animatable.value, y = 0) }
     }
