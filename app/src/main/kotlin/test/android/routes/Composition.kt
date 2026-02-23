@@ -7,11 +7,13 @@ import androidx.compose.runtime.CompositionLocalProvider
 internal fun Composition(
     routes: Routes,
     routesTransitions: RoutesTransitions,
+    routesSpecs: RoutesSpecs,
     content: @Composable () -> Unit,
 ) {
     CompositionLocalProvider(
         LocalRoutes provides routes,
         LocalRoutesTransitions provides routesTransitions,
+        LocalRoutesSpecs provides routesSpecs,
         content = content,
     )
 }

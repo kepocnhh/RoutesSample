@@ -71,6 +71,7 @@ fun Animatable<IntOffset, AnimationVector1D>.animateOffset(
     return value
 }
 
+/*
 @Composable
 fun animateXOffset(
     route: String,
@@ -95,6 +96,7 @@ fun animateXOffset(
     }
     return animatable.value
 }
+*/
 
 //@Composable
 //fun animateXOffset(
@@ -134,20 +136,27 @@ fun animateXOffset(
     return { IntOffset(x = animatable.value, y = 0) }
 }
 
-fun Modifier.animateXOffset(
-    animationSpec: AnimationSpec<Int>,
-    initialValue: () -> Int,
-    label: String,
-    whenAnimate: () -> Any,
-    targetValue: () -> Int,
-): Modifier {
-    return composed {
-        val animatable = remember {
-            Animatable(initialValue(), Int.VectorConverter, null, label)
-        }
-        LaunchedEffect(whenAnimate()) {
-            animatable.animateTo(targetValue(), animationSpec)
-        }
-        Modifier.offset { IntOffset(x = animatable.value, y = 0) }
+@Composable
+fun animateXOffset(
+    route: String,
+    routes: Routes = LocalRoutes.current,
+    windowInfo: WindowInfo = LocalWindowInfo.current,
+    animationSpec: AnimationSpec<Int> = LocalRoutesSpecs.current.x,
+    initialValue: Int = windowInfo.containerSize.width,
+    label: String = route,
+): (Density.() -> IntOffset) {
+    val animatable = remember {
+        Animatable(initialValue, Int.VectorConverter, null, label)
     }
+    LaunchedEffect(routes.states.collectAsState().value.isCurrent(route = route)) {
+        val width = windowInfo.containerSize.width
+        val state = routes.states.value
+        val value = when {
+            !state.has(route = route) -> width
+            state.isCurrent(route = route) -> 0
+            else -> -width
+        }
+        animatable.animateTo(value, animationSpec)
+    }
+    return { IntOffset(x = animatable.value, y = 0) }
 }
