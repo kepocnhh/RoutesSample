@@ -24,6 +24,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlinx.coroutines.withContext
 import test.android.routes.entity.Foo
@@ -34,48 +35,37 @@ internal fun FooListScreen(
     modifier: Modifier,
     onBack: () -> Unit,
 ) {
-    RoutesAnimations(
-        modifier = modifier,
-        route = "foo:list",
-        content = { routes ->
-            FooListScreen(
-                onBack = onBack,
-                toObject = { id ->
-                    routes.next("foo:detail")
-                },
-            )
-        },
-        foreground = { routes ->
-            FooDetailScreen(
-                modifier = Modifier.fillMaxSize(),
-                onBack = routes::back,
-            )
-        },
-    )
+    val providers = remember { App.providers }
+    val objectsState = remember { mutableStateOf(emptyList<Foo>()) }
+    LaunchedEffect(Unit) {
+        objectsState.value = withContext(providers.contexts.default) {
+            providers.locals.objects
+        }
+    }
+    BackHandler(onBack = onBack)
+    Box(modifier = modifier) {
+        FooListScreen(
+            objects = objectsState.value,
+            toObject = { id ->
+                // todo
+            },
+        )
+    }
+    // todo object
 }
 
 @Composable
 internal fun FooListScreen(
-    onBack: () -> Unit,
+    objects: List<Foo>,
     toObject: (UUID) -> Unit,
 ) {
-    val routes: Routes = LocalRoutes.current
-    val state = routes.states.collectAsState().value
-    val providers = remember { App.providers }
     val insets = WindowInsets.systemBars.asPaddingValues()
-    BackHandler(onBack = onBack)
     Box(
         modifier = Modifier
             .fillMaxSize()
             .background(color = Color.White)
             .clickable(indication = null, interactionSource = null, onClick = { /* noop */ }),
     ) {
-        val objectsState = remember { mutableStateOf(emptyList<Foo>()) }
-        LaunchedEffect(Unit) {
-            objectsState.value = withContext(providers.contexts.default) {
-                providers.locals.objects
-            }
-        }
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
             contentPadding = PaddingValues(
@@ -84,7 +74,7 @@ internal fun FooListScreen(
             ),
             verticalArrangement = Arrangement.spacedBy(8.dp),
         ) {
-            objectsState.value.forEach { obj ->
+            objects.forEach { obj ->
                 item(key = obj.id) {
                     Column(
                         modifier = Modifier

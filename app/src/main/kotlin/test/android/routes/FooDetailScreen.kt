@@ -14,18 +14,7 @@ internal fun FooDetailScreen(
     modifier: Modifier,
     onBack: () -> Unit,
 ) {
-    RoutesAnimations(
-        modifier = modifier,
-        route = "foo:detail",
-        content = {
-            FooDetailScreen(
-                onBack = onBack,
-            )
-        },
-        foreground = {
-            // todo
-        },
-    )
+    // todo
 }
 
 @Composable
