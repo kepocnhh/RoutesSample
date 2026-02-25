@@ -37,9 +37,10 @@ fun RoutesAnimations(
     content: @Composable AnimatedVisibilityScope.() -> Unit,
 ) {
     val state = routes.states.collectAsState().value
+    // todo own visibility
     AnimatedVisibility(
         modifier = modifier,
-        visible = state.stack.contains(route),
+        visible = state.has(route = route),
         enter = transitions.enter,
         exit = transitions.exit,
         content = content,
@@ -147,6 +148,9 @@ fun animateXOffset(
 ): (Density.() -> IntOffset) {
     val animatable = remember {
         Animatable(initialValue, Int.VectorConverter, null, label)
+    }
+    LaunchedEffect(animatable.value) {
+        println("value($route): ${animatable.value}")
     }
     LaunchedEffect(routes.states.collectAsState().value.isCurrent(route = route)) {
         val width = windowInfo.containerSize.width
