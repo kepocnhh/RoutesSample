@@ -27,28 +27,29 @@ internal class MainActivity : ComponentActivity() {
 //        val easing: Easing = LinearEasing
         val easing: Easing = FastOutSlowInEasing
         view.setContent {
-            Composition(
-                routes = Routes(stack = listOf("main")),
-                routesTransitions = RoutesTransitions(
-                    enter = fadeIn(animationSpec = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing)),
-                    exit = fadeOut(animationSpec = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing)),
-                ),
-                routesSpecs = RoutesSpecs(
-                    x = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing),
-                ),
-            ) {
-                RoutesAnimations(
-                    modifier = Modifier.fillMaxSize().background(color = Color.White),
-                    route = "main",
-                ) {
-                    MainScreen(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .offset(animateXOffset(route = "main", initialValue = 0)), // todo RoutesModifierNodeElement
-                        onBack = ::finish,
-                    )
-                }
-            }
+//            Composition(
+//                routes = Routes(stack = listOf("main")),
+//                routesTransitions = RoutesTransitions(
+//                    enter = fadeIn(animationSpec = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing)),
+//                    exit = fadeOut(animationSpec = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing)),
+//                ),
+//                routesSpecs = RoutesSpecs(
+//                    x = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing),
+//                ),
+//            ) {
+//                RoutesAnimations(
+//                    modifier = Modifier.fillMaxSize().background(color = Color.White),
+//                    route = "main",
+//                ) {
+//                    MainScreen(
+//                        modifier = Modifier
+//                            .fillMaxSize()
+//                            .offset(animateXOffset(route = "main", initialValue = 0)), // todo RoutesModifierNodeElement
+//                        onBack = ::finish,
+//                    )
+//                }
+//            }
+            TestScreen()
         }
     }
 }
