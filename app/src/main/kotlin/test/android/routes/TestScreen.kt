@@ -53,12 +53,12 @@ internal fun TestScreen() {
                     modifier = Modifier
                         .fillMaxSize(),
                     route = "test",
-                    spec = tween(durationMillis = 2_000),
+                    spec = tween(durationMillis = 2_000, easing = LinearEasing),
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .alpha(currentValue)
+//                            .alpha(currentValue)
                             .background(color = Color.Blue),
                     ) {
                         BasicText(

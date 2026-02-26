@@ -44,28 +44,27 @@ fun RoutesAnimations(
     val scopes = remember {
         val scope = RoutesAnimationsScope(
             route = route,
-            targetValue = 0f,
             currentValue = 0f,
         )
         mutableStateOf(scope)
     }
+    // todo own animatable
     val animatable = remember {
-        Animatable(0f, Float.VectorConverter)
+        Animatable(0f, Float.VectorConverter, label = route)
     }
     val isVisible = routes.states.collectAsState().value.has(route = route)
     LaunchedEffect(isVisible) {
         val targetValue = if (routes.states.value.has(route = route)) 1f else 0f
-        scopes.value = scopes.value.copy(
-            targetValue = targetValue,
-        )
-        animatable.animateTo(targetValue, spec)
+        if (targetValue != animatable.value) {
+            animatable.animateTo(targetValue, spec)
+        }
     }
     LaunchedEffect(animatable.value) {
         scopes.value = scopes.value.copy(
             currentValue = animatable.value,
         )
     }
-    if (isVisible || animatable.value > 0) {
+    if (isVisible || animatable.value > 0f) {
         Box(modifier = modifier) {
             scopes.value.content()
         }
