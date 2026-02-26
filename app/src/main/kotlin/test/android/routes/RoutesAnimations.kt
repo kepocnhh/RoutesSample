@@ -7,8 +7,11 @@ import androidx.compose.animation.ExitTransition
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.AnimationSpec
 import androidx.compose.animation.core.AnimationVector1D
+import androidx.compose.animation.core.DurationBasedAnimationSpec
+import androidx.compose.animation.core.Easing
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
+import androidx.compose.animation.core.TweenSpec
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -20,6 +23,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
@@ -27,6 +31,46 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
+import kotlin.time.Duration
+
+@Composable
+fun RoutesAnimations(
+    modifier: Modifier,
+    route: String,
+    routes: Routes = LocalRoutes.current,
+    spec: TweenSpec<Float>,
+    content: @Composable RoutesAnimationsScope.() -> Unit,
+) {
+    val scopes = remember {
+        val scope = RoutesAnimationsScope(
+            route = route,
+            targetValue = 0f,
+            currentValue = 0f,
+        )
+        mutableStateOf(scope)
+    }
+    val animatable = remember {
+        Animatable(0f, Float.VectorConverter)
+    }
+    val isVisible = routes.states.collectAsState().value.has(route = route)
+    LaunchedEffect(isVisible) {
+        val targetValue = if (routes.states.value.has(route = route)) 1f else 0f
+        scopes.value = scopes.value.copy(
+            targetValue = targetValue,
+        )
+        animatable.animateTo(targetValue, spec)
+    }
+    LaunchedEffect(animatable.value) {
+        scopes.value = scopes.value.copy(
+            currentValue = animatable.value,
+        )
+    }
+    if (isVisible || animatable.value > 0) {
+        Box(modifier = modifier) {
+            scopes.value.content()
+        }
+    }
+}
 
 @Composable
 fun RoutesAnimations(

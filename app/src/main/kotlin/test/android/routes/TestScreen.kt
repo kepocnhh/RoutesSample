@@ -20,6 +20,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -41,46 +42,48 @@ internal fun TestScreen() {
                 .fillMaxSize()
                 .padding(insets),
         ) {
-            val isVisibleState = remember { mutableStateOf(false) }
-            val animatable = remember {
-                Animatable(0f, Float.VectorConverter)
-            }
-            val spec = remember { tween<Float>(durationMillis = 2_000, easing = LinearEasing) }
-            LaunchedEffect(isVisibleState.value) {
-                val targetValue = if (isVisibleState.value) 1f else 0f
-                animatable.animateTo(targetValue, spec)
-            }
+            val routes = LocalRoutes.current
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
                     .background(color = Color.Red),
             ) {
-                if (isVisibleState.value || animatable.value > 0) {
+                RoutesAnimations(
+                    modifier = Modifier
+                        .fillMaxSize(),
+                    route = "test",
+                    spec = tween(durationMillis = 2_000),
+                ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .alpha(animatable.value)
-                            .background(color = Color.Green),
+                            .alpha(currentValue)
+                            .background(color = Color.Blue),
                     ) {
                         BasicText(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(Alignment.Center),
-                            text = "alpha: ${animatable.value}",
+                            text = "alpha: $currentValue",
                         )
                     }
                 }
             }
+            val state = routes.states.collectAsState().value
             BasicText(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
                     .clickable {
-                        isVisibleState.value = !isVisibleState.value
+                        if (routes.states.value.has(route = "test")) {
+                            routes.back()
+                        } else {
+                            routes.next(route = "test")
+                        }
                     }
                     .wrapContentSize(),
-                text = if (isVisibleState.value) "hide" else "show",
+                text = if (state.has(route = "test")) "hide" else "show",
             )
         }
     }
