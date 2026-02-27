@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun TestScreen() {
@@ -53,19 +54,19 @@ internal fun TestScreen() {
                     modifier = Modifier
                         .fillMaxSize(),
                     route = "test",
-                    spec = tween(durationMillis = 2_000, easing = LinearEasing),
+//                    spec = tween(durationMillis = 2_000, easing = LinearEasing),
+                    hiding = 2.seconds,
                 ) {
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-//                            .alpha(currentValue)
                             .background(color = Color.Blue),
                     ) {
                         BasicText(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(Alignment.Center),
-                            text = "alpha: $currentValue",
+                            text = "todo",
                         )
                     }
                 }

@@ -25,6 +25,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.composed
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -32,6 +33,38 @@ import androidx.compose.ui.platform.WindowInfo
 import androidx.compose.ui.unit.Density
 import androidx.compose.ui.unit.IntOffset
 import kotlin.time.Duration
+
+@Composable
+fun RoutesAnimations(
+    modifier: Modifier,
+    route: String,
+    routes: Routes = LocalRoutes.current,
+    hiding: Duration,
+    content: @Composable () -> Unit,
+) {
+    val timeHiding = remember { hiding.inWholeNanoseconds }
+    val isVisible = routes.states.collectAsState().value.has(route = route)
+    val isHiddenState = remember { mutableStateOf(true) }
+    LaunchedEffect(isVisible) {
+        if (isVisible) {
+            isHiddenState.value = false
+        } else if (!isHiddenState.value) {
+            val timeStart = withFrameNanos { it }
+            while (true) {
+                val timeDiff = withFrameNanos { it - timeStart }
+                if (timeDiff > timeHiding) {
+                    isHiddenState.value = true
+                    break
+                }
+            }
+        }
+    }
+    if (isVisible || !isHiddenState.value) {
+        Box(modifier = modifier) {
+            content()
+        }
+    }
+}
 
 @Composable
 fun RoutesAnimations(
