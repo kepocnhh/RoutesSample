@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.offset
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
+import androidx.lifecycle.coroutineScope
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
@@ -28,7 +29,11 @@ internal class MainActivity : ComponentActivity() {
         val easing: Easing = FastOutSlowInEasing
         view.setContent {
             Composition(
-                routes = Routes(stack = listOf()),
+                routes = Routes(
+                    coroutineScope = lifecycle.coroutineScope,
+                    default = App.providers.contexts.default,
+                    stack = listOf(),
+                ),
                 routesTransitions = RoutesTransitions(
                     enter = fadeIn(animationSpec = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing)),
                     exit = fadeOut(animationSpec = tween(durationMillis = duration.inWholeMilliseconds.toInt(), easing = easing)),

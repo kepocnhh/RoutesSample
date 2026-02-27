@@ -72,11 +72,12 @@ internal fun TestScreen() {
                 }
             }
             val state = routes.states.collectAsState().value
+            val isLoading = routes.loading.collectAsState().value
             BasicText(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(48.dp)
-                    .clickable {
+                    .clickable(enabled = !isLoading) {
                         if (routes.states.value.has(route = "test")) {
                             routes.back()
                         } else {

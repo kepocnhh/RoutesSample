@@ -21,6 +21,7 @@ import androidx.compose.foundation.layout.BoxScope
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.mutableStateOf
@@ -46,10 +47,14 @@ fun RoutesAnimations(
     val isVisible = routes.states.collectAsState().value.has(route = route)
     val isHiddenState = remember { mutableStateOf(true) }
     LaunchedEffect(isVisible) {
-        if (isVisible) {
+        val state = routes.states.value
+        if (state.has(route = route)) {
             isHiddenState.value = false
-        } else if (!isHiddenState.value) {
+        } else if (!state.isPrevious(route = route)) {
+            isHiddenState.value = true
+        } else {
             val timeStart = withFrameNanos { it }
+            routes.startAnimation(label = "RoutesAnimations:$route")
             while (true) {
                 val timeDiff = withFrameNanos { it - timeStart }
                 if (timeDiff > timeHiding) {
@@ -62,6 +67,11 @@ fun RoutesAnimations(
     if (isVisible || !isHiddenState.value) {
         Box(modifier = modifier) {
             content()
+            DisposableEffect(Unit) {
+                onDispose {
+                    routes.finishAnimation(label = "RoutesAnimations:$route")
+                }
+            }
         }
     }
 }
