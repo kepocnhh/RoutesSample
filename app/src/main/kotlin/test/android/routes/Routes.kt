@@ -22,6 +22,18 @@ class Routes(
     private val _loading = MutableStateFlow(false)
     val loading = _loading.asStateFlow()
 
+    init {
+        // todo
+        coroutineScope.launch {
+            withContext(default) {
+                _states.collect { state ->
+                    println("[Routes]:stack: ${state.stack}")
+                }
+            }
+        }
+        // todo
+    }
+
     fun next(route: String) {
         coroutineScope.launch {
             withContext(default) {

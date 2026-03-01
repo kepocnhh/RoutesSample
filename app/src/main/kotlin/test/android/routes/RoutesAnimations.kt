@@ -41,8 +41,12 @@ fun RoutesAnimations(
     route: String,
     routes: Routes = LocalRoutes.current,
     hiding: Duration,
-    content: @Composable () -> Unit,
+    content: @Composable RoutesAnimationsScope.() -> Unit,
 ) {
+    val scopes = remember {
+        val scope = RoutesAnimationsScope(route = route)
+        mutableStateOf(scope)
+    }
     val timeHiding = remember { hiding.inWholeNanoseconds }
     val isVisible = routes.states.collectAsState().value.has(route = route)
     val isHiddenState = remember { mutableStateOf(true) }
@@ -66,7 +70,7 @@ fun RoutesAnimations(
     }
     if (isVisible || !isHiddenState.value) {
         Box(modifier = modifier) {
-            content()
+            scopes.value.content()
             DisposableEffect(Unit) {
                 onDispose {
                     routes.finishAnimation(label = "RoutesAnimations:$route")
@@ -76,6 +80,7 @@ fun RoutesAnimations(
     }
 }
 
+/*
 @Composable
 fun RoutesAnimations(
     modifier: Modifier,
@@ -113,6 +118,7 @@ fun RoutesAnimations(
         }
     }
 }
+*/
 
 @Composable
 fun RoutesAnimations(

@@ -1,6 +1,7 @@
 package test.android.routes
 
 import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.animation.core.VectorConverter
 import androidx.compose.animation.core.tween
@@ -57,16 +58,25 @@ internal fun TestScreen() {
 //                    spec = tween(durationMillis = 2_000, easing = LinearEasing),
                     hiding = 2.seconds,
                 ) {
+//                    val alpha = animateAlpha(
+//                        animationSpec = tween(durationMillis = 2_000, easing = LinearEasing),
+//                    )
+                    val alpha = animateFloat(
+                        initialValue = 0f,
+                        targetValue = 1f,
+                        animationSpec = FloatTweenSpec(duration = 2_000, easing = LinearEasing),
+                    )
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
+                            .alpha(alpha = alpha)
                             .background(color = Color.Blue),
                     ) {
                         BasicText(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .align(Alignment.Center),
-                            text = "todo",
+                            text = "alpha: $alpha",
                         )
                     }
                 }
