@@ -8,7 +8,6 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
-import java.util.concurrent.atomic.AtomicInteger
 import kotlin.coroutines.CoroutineContext
 
 class Routes(
@@ -63,43 +62,6 @@ class Routes(
                         stack = stack,
                         previous = state.stack.lastOrNull() ?: TODO(),
                     )
-                }
-            }
-        }
-    }
-
-//    fun back(route: String) {
-//        val stack = mutableListOf<String>()
-//        val state = _states.value
-//        val current = state.stack.lastOrNull()
-//        if (route == current) TODO()
-//        for (it in state.stack) {
-//            stack += it
-//            if (it == route) {
-//                _states.value = state.copy(stack = stack)
-//                return
-//            }
-//        }
-//        TODO()
-//    }
-
-    internal fun startAnimation(label: String) {
-        println("start animation: $label")
-        coroutineScope.launch {
-            withContext(default) {
-                mutex.withLock {
-                    _loading.value = true
-                }
-            }
-        }
-    }
-
-    internal fun finishAnimation(label: String) {
-        println("finish animation: $label")
-        coroutineScope.launch {
-            withContext(default) {
-                mutex.withLock {
-                    _loading.value = false
                 }
             }
         }

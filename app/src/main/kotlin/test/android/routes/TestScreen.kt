@@ -1,15 +1,10 @@
 package test.android.routes
 
-import androidx.compose.animation.core.Animatable
-import androidx.compose.animation.core.FloatTweenSpec
 import androidx.compose.animation.core.LinearEasing
-import androidx.compose.animation.core.VectorConverter
-import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.WindowInsets
 import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
@@ -20,10 +15,7 @@ import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -45,6 +37,7 @@ internal fun TestScreen() {
                 .padding(insets),
         ) {
             val routes = LocalRoutes.current
+            val state = routes.states.collectAsState().value
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -55,16 +48,11 @@ internal fun TestScreen() {
                     modifier = Modifier
                         .fillMaxSize(),
                     route = "test",
-//                    spec = tween(durationMillis = 2_000, easing = LinearEasing),
-                    hiding = 2.seconds,
                 ) {
-//                    val alpha = animateAlpha(
-//                        animationSpec = tween(durationMillis = 2_000, easing = LinearEasing),
-//                    )
                     val alpha = animateFloat(
-                        initialValue = 0f,
-                        targetValue = 1f,
-                        animationSpec = FloatTweenSpec(duration = 2_000, easing = LinearEasing),
+                        duration = 2.seconds,
+                        easing = LinearEasing,
+                        isForward = state.has(route = "test"),
                     )
                     Box(
                         modifier = Modifier
@@ -81,7 +69,6 @@ internal fun TestScreen() {
                     }
                 }
             }
-            val state = routes.states.collectAsState().value
             val isLoading = routes.loading.collectAsState().value
             BasicText(
                 modifier = Modifier
