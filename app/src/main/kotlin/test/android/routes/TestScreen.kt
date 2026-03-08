@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.layout.wrapContentSize
@@ -19,7 +20,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalWindowInfo
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import kotlin.time.Duration.Companion.seconds
 
@@ -49,15 +54,27 @@ internal fun TestScreen() {
                         .fillMaxSize(),
                     route = "test",
                 ) {
-                    val alpha = animateFloat(
+                    val fraction = animateFloat(
                         duration = 2.seconds,
                         easing = LinearEasing,
                         isForward = state.has(route = "test"),
                     )
+                    val alpha = 1f * fraction
+                    val width = LocalWindowInfo.current.containerSize.width
+                    val x = width - width.times(fraction)
+                    val scale = 0.75f + 0.25f * fraction
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
-                            .alpha(alpha = alpha)
+                            .graphicsLayer {
+                                this.alpha = alpha
+                                this.scaleX = scale
+                                this.scaleY = scale
+                                this.translationX = x
+                            }
+//                            .alpha(alpha = alpha)
+//                            .offset { IntOffset(x, 0) }
+//                            .scale(scale = scale)
                             .background(color = Color.Blue),
                     ) {
                         BasicText(
