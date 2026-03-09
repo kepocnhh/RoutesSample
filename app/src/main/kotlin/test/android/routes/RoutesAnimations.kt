@@ -11,19 +11,19 @@ import androidx.compose.ui.Modifier
 @Composable
 fun RoutesAnimations(
     modifier: Modifier,
-    route: String,
+    name: String,
     routes: Routes = LocalRoutes.current,
     content: @Composable RoutesAnimationsScope.() -> Unit,
 ) {
     val scope = remember { RoutesAnimationsScope() }
-    val isVisible = routes.states.collectAsState().value.has(route = route)
+    val isVisible = routes.states.collectAsState().value.has(name = name)
     val isLoading = scope._actions.collectAsState().value.isNotEmpty()
     LaunchedEffect(Unit) {
         scope._actions.collect { actions ->
             if (actions.values.contains(true)) {
-                routes._actions.value += route
+                routes._actions.value += name
             } else {
-                routes._actions.value -= route
+                routes._actions.value -= name
             }
         }
     }

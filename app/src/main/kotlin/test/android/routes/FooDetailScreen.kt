@@ -40,7 +40,7 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
     val fraction = animateFloat(
         duration = duration,
         easing = easing,
-        isForward = state.has(route = "foo:detail"),
+        isForward = state.has(name = "foo:detail"),
     )
     val width = LocalWindowInfo.current.containerSize.width
     val scale = 0.9f + 0.1f * fraction

@@ -48,23 +48,23 @@ internal fun RoutesAnimationsScope.FooListScreen(
     val fraction = animateFloat(
         duration = duration,
         easing = easing,
-        isForward = state.isCurrent(route = "foo:list"),
+        isForward = state.isCurrent(name = "foo:list"),
     )
     val width = LocalWindowInfo.current.containerSize.width
     val scale = 0.9f + 0.1f * fraction
     val w = animateFloat(
         duration = duration,
         easing = easing,
-        isForward = state.isCurrent(route = "foo:list"),
+        isForward = state.isCurrent(name = "foo:list"),
     )
-    val translationX = if (state.isCurrent(route = "foo:list")) {
+    val translationX = if (state.isCurrent(name = "foo:list")) {
         if (state.isForward()) {
             width - width * w
         } else {
             width * w - width
         }
     } else {
-        if (state.has(route = "foo:list")) {
+        if (state.has(name = "foo:list")) {
             width * w - width
         } else {
             width - width * w
@@ -102,7 +102,7 @@ internal fun RoutesAnimationsScope.FooListScreen(
     }
     RoutesAnimations(
         modifier = Modifier.fillMaxSize(),
-        route = "foo:detail",
+        name = "foo:detail",
     ) {
         FooDetailScreen(
             onBack = routes::back,

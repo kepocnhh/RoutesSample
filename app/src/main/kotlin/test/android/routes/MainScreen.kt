@@ -44,7 +44,7 @@ internal fun MainScreen() {
     }
     RoutesAnimations(
         modifier = Modifier.fillMaxSize(),
-        route = "foo:list",
+        name = "foo:list",
     ) {
         FooListScreen(
             onBack = routes::back,

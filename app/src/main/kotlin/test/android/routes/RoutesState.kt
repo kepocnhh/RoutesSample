@@ -3,23 +3,30 @@ package test.android.routes
 import java.util.Objects
 
 class RoutesState(
-    internal val stack: List<String>,
-    private val previous: String?,
+    internal val stack: List<Route>,
+    private val previous: Route?,
 ) {
-    fun has(route: String): Boolean {
-        return stack.contains(route)
+    fun has(name: String): Boolean {
+        for (route in stack) {
+            if (route.name == name) return true
+        }
+        return false
     }
 
-    fun isCurrent(route: String): Boolean {
-        return route == stack.lastOrNull()
+    fun isCurrent(name: String): Boolean {
+        val route = stack.lastOrNull()
+        return name == route?.name
     }
 
-    fun isPrevious(route: String): Boolean {
-        return route == previous
+    fun isPrevious(name: String): Boolean {
+        return name == previous?.name
     }
 
     fun isForward(): Boolean {
-        return stack.getOrNull(stack.size - 2) == previous
+        if (stack.size < 2) {
+            return previous == null
+        }
+        return stack[stack.size - 2].name == previous?.name
     }
 
     override fun equals(other: Any?): Boolean {
