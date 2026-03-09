@@ -6,18 +6,31 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
+import kotlinx.coroutines.flow.MutableStateFlow
+import java.util.UUID
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 
-data class RoutesAnimationsScope(
-    val route: String,
-) {
+class RoutesAnimationsScope {
+    internal val _actions = MutableStateFlow<Set<UUID>>(emptySet())
+
     @Composable
     fun animateFloat(
         duration: Duration,
         easing: Easing,
         isForward: Boolean,
     ): Float {
+        val closed = remember { MutableStateFlow(true) }
+        val id = remember { UUID.randomUUID() }
+        LaunchedEffect(Unit) {
+            closed.collect { isClosed ->
+                if (isClosed) {
+                    _actions.value -= id
+                } else {
+                    _actions.value += id
+                }
+            }
+        }
         val values = remember { mutableFloatStateOf(0f) }
         val timeLeftState = remember { AtomicLong(0L) }
         LaunchedEffect(isForward) {
@@ -29,6 +42,7 @@ data class RoutesAnimationsScope(
                 val timeNow = withFrameNanos { it }
                 val timeStart = timeNow - timeLeft
                 while (true) {
+                    closed.value = false
                     val timePassed = withFrameNanos { it - timeStart }
                     if (timePassed < timeNanos) {
                         timeLeftState.set(timeNanos - timePassed)
@@ -45,6 +59,7 @@ data class RoutesAnimationsScope(
                     }
                 }
             }
+            closed.value = !isForward
         }
         return values.floatValue
     }

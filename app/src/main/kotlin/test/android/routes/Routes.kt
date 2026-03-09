@@ -2,7 +2,9 @@ package test.android.routes
 
 import androidx.compose.runtime.staticCompositionLocalOf
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -18,8 +20,22 @@ class Routes(
     private val mutex = Mutex()
     private val _states = MutableStateFlow(RoutesState(stack = stack, previous = null))
     val states = _states.asStateFlow()
-    private val _loading = MutableStateFlow(false)
-    val loading = _loading.asStateFlow()
+    private val _actions = MutableStateFlow<Set<String>>(emptySet())
+    val loading = object : StateFlow<Boolean> {
+        override val value: Boolean get() = _actions.value.isNotEmpty()
+        override val replayCache: List<Boolean> = emptyList()
+
+        override suspend fun collect(collector: FlowCollector<Boolean>): Nothing {
+            var value: Boolean? = null
+            _actions.collect { labels ->
+                val isLoading = labels.isNotEmpty()
+                if (isLoading != value) {
+                    value = isLoading
+                    collector.emit(isLoading)
+                }
+            }
+        }
+    }
 
     init {
         // todo
@@ -37,7 +53,7 @@ class Routes(
         coroutineScope.launch {
             withContext(default) {
                 _states.value = mutex.withLock {
-                    if (_loading.value) TODO()
+                    if (loading.value) TODO()
                     val state = _states.value
                     if (state.stack.contains(route)) TODO()
                     RoutesState(
@@ -53,7 +69,7 @@ class Routes(
         coroutineScope.launch {
             withContext(default) {
                 _states.value = mutex.withLock {
-                    if (_loading.value) TODO()
+                    if (loading.value) TODO()
                     val state = _states.value
                     val stack = state.stack.toMutableList()
                     if (stack.isEmpty()) TODO()

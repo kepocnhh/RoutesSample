@@ -16,11 +16,12 @@ fun RoutesAnimations(
     routes: Routes = LocalRoutes.current,
     content: @Composable RoutesAnimationsScope.() -> Unit,
 ) {
-    val scopes = remember {
-        val scope = RoutesAnimationsScope(route = route)
-        mutableStateOf(scope)
-    }
+    val scope = remember { RoutesAnimationsScope() }
     val isVisible = routes.states.collectAsState().value.has(route = route)
+    val isLoading = scope._actions.collectAsState().value.isNotEmpty()
+    LaunchedEffect(isLoading) {
+        println("actions: ${scope._actions.value}")
+    }
     LaunchedEffect(isVisible) {
         val state = routes.states.value
         if (state.has(route = route)) {
@@ -31,9 +32,9 @@ fun RoutesAnimations(
             // todo
         }
     }
-    if (isVisible) {
+    if (isVisible || isLoading) {
         Box(modifier = modifier) {
-            scopes.value.content()
+            scope.content()
             DisposableEffect(Unit) {
                 onDispose {
                     // todo
