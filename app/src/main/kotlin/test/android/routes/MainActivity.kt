@@ -15,10 +15,9 @@ internal class MainActivity : ComponentActivity() {
                 routes = Routes(
                     coroutineScope = lifecycle.coroutineScope,
                     default = App.providers.contexts.default,
-                    stack = listOf(),
                 ),
             ) {
-                TestScreen()
+                MainScreen()
             }
         }
     }

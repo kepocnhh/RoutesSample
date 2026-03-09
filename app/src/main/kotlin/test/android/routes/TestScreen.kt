@@ -52,8 +52,7 @@ internal fun TestScreen() {
                     .background(color = Color.Red),
             ) {
                 RoutesAnimations(
-                    modifier = Modifier
-                        .fillMaxSize(),
+                    modifier = Modifier.fillMaxSize(),
                     route = "test",
                 ) {
                     val duration = 250.milliseconds

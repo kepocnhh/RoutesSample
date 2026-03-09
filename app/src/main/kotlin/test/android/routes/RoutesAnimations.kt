@@ -20,7 +20,6 @@ fun RoutesAnimations(
     val isLoading = scope._actions.collectAsState().value.isNotEmpty()
     LaunchedEffect(Unit) {
         scope._actions.collect { actions ->
-            println("actions: $actions")
             if (actions.values.contains(true)) {
                 routes._actions.value += route
             } else {
@@ -31,11 +30,6 @@ fun RoutesAnimations(
     if (isVisible || isLoading) {
         Box(modifier = modifier) {
             scope.content()
-            DisposableEffect(Unit) {
-                onDispose {
-                    // todo
-                }
-            }
         }
     }
 }

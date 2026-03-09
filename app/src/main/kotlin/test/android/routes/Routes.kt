@@ -15,10 +15,9 @@ import kotlin.coroutines.CoroutineContext
 class Routes(
     private val coroutineScope: CoroutineScope,
     private val default: CoroutineContext,
-    stack: List<String>,
 ) {
     private val mutex = Mutex()
-    private val _states = MutableStateFlow(RoutesState(stack = stack, previous = null))
+    private val _states = MutableStateFlow(RoutesState(stack = emptyList(), previous = null))
     val states = _states.asStateFlow()
     internal val _actions = MutableStateFlow<Set<String>>(emptySet())
     val loading = object : StateFlow<Boolean> {
