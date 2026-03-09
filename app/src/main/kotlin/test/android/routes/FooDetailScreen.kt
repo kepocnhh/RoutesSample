@@ -27,8 +27,13 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
+internal object FooDetailScreen {
+    data class Route(val foo: Foo)
+}
+
 @Composable
 internal fun RoutesAnimationsScope.FooDetailScreen(
+    route: FooDetailScreen.Route,
     onBack: () -> Unit,
 ) {
     val routes = LocalRoutes.current
@@ -57,16 +62,7 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
                 translationX = width - width * fraction,
             ),
     ) {
-        val foo = remember {
-            // todo
-            val index = 0
-            Foo(
-                id = UUID(0, index.toLong()),
-                text = "text - $index",
-                number = index,
-            )
-        }
-        FooDetailScreen(foo = foo)
+        FooDetailScreen(foo = route.foo)
     }
 }
 

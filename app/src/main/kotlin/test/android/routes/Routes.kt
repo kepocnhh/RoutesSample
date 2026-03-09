@@ -48,7 +48,7 @@ class Routes(
         // todo
     }
 
-    fun next(name: String) {
+    fun <T : Any> next(name: String, payload: T?) {
         coroutineScope.launch {
             withContext(default) {
                 _states.value = mutex.withLock {
@@ -58,7 +58,10 @@ class Routes(
                         if (route.name == name) TODO()
                     }
                     RoutesState(
-                        stack = state.stack + Route(name = name),
+                        stack = state.stack + Route(
+                            name = name,
+                            payload = payload,
+                        ),
                         previous = state.stack.lastOrNull(),
                     )
                 }

@@ -35,7 +35,7 @@ internal fun MainScreen() {
                     .fillMaxWidth()
                     .height(48.dp)
                     .clickable(enabled = !isLoading) {
-                        routes.next("foo:list")
+                        routes.next(name = "foo:list", payload = null)
                     }
                     .wrapContentSize(),
                 text = "to list",

@@ -58,7 +58,7 @@ internal fun RoutesAnimationsScope.FooListScreen(
         isForward = state.isCurrent(name = "foo:list"),
     )
     val translationX = if (state.isCurrent(name = "foo:list")) {
-        if (state.isForward()) {
+        if (state.toForward()) {
             width - width * w
         } else {
             width * w - width
@@ -95,8 +95,11 @@ internal fun RoutesAnimationsScope.FooListScreen(
         }
         FooListScreen(
             list = list,
-            toDetail = {
-                routes.next("foo:detail")
+            toDetail = { foo ->
+                routes.next(
+                    name = "foo:detail",
+                    payload = FooDetailScreen.Route(foo = foo),
+                )
             },
         )
     }
@@ -104,7 +107,9 @@ internal fun RoutesAnimationsScope.FooListScreen(
         modifier = Modifier.fillMaxSize(),
         name = "foo:detail",
     ) {
+        val route = remember { state.getPayload<FooDetailScreen.Route>(name = "foo:detail") }
         FooDetailScreen(
+            route = route ?: TODO(),
             onBack = routes::back,
         )
     }
@@ -115,6 +120,8 @@ internal fun FooListScreen(
     list: List<Foo>,
     toDetail: (Foo) -> Unit,
 ) {
+    val routes = LocalRoutes.current
+    val isLoading = routes.loading.collectAsState().value
     val insets = WindowInsets.systemBars.asPaddingValues()
     Box(
         modifier = Modifier
@@ -136,7 +143,7 @@ internal fun FooListScreen(
                     BasicText(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .clickable {
+                            .clickable(enabled = !isLoading) {
                                 toDetail(foo)
                             }
                             .padding(horizontal = 16.dp),

@@ -22,11 +22,24 @@ class RoutesState(
         return name == previous?.name
     }
 
-    fun isForward(): Boolean {
+    fun toForward(): Boolean {
         if (stack.size < 2) {
             return previous == null
         }
         return stack[stack.size - 2].name == previous?.name
+    }
+
+    fun <T : Any> getPayload(name: String): T? {
+        for (route in stack) {
+            if (route.name == name) {
+                return if (route.payload == null) {
+                    null
+                } else {
+                    route.payload as T
+                }
+            }
+        }
+        TODO()
     }
 
     override fun equals(other: Any?): Boolean {
