@@ -13,6 +13,13 @@ class RoutesState(
         return false
     }
 
+    fun <T : Any> has(type: Class<T>): Boolean {
+        for (route in stack) {
+            if (type.name == route.name) return true
+        }
+        return false
+    }
+
     fun isCurrent(name: String): Boolean {
         val route = stack.lastOrNull()
         return name == route?.name

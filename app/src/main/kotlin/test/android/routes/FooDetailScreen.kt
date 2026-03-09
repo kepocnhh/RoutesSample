@@ -22,8 +22,11 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.TransformOrigin
 import androidx.compose.ui.graphics.graphicsLayer
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.dp
 import test.android.routes.entity.Foo
@@ -37,9 +40,12 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
     onBack: () -> Unit,
 ) {
     val routes = LocalRoutes.current
+    val isLoading = routes.loading.collectAsState().value
     val state = routes.states.collectAsState().value
 //    val duration = 250.milliseconds
-    val duration = 1.seconds
+    val duration = 500.milliseconds
+//    val duration = 1.seconds
+//    val duration = 2.seconds
 //    val easing = LinearEasing
     val easing = FastOutSlowInEasing
     val fraction = animateFloat(
@@ -48,8 +54,24 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
         isForward = state.isCurrent(type = Foo::class.java),
     )
     val width = LocalWindowInfo.current.containerSize.width
-    val scale = 0.9f + 0.1f * fraction
-    val alpha = 0.5f + 0.5f * fraction
+//    val scale = 0.9f + 0.1f * fraction
+    val scale = 0.75f + 0.25f * fraction
+//    val scale = 0.5f + 0.5f * fraction
+//    val alpha = 0.5f + 0.5f * fraction
+    val alpha = 1f * fraction
+    val translationX = if (state.isCurrent(type = Foo::class.java)) {
+        if (state.toForward()) {
+            width - width * fraction
+        } else {
+            width * fraction - width
+        }
+    } else {
+        if (state.has(type = Foo::class.java)) {
+            width * fraction - width
+        } else {
+            width - width * fraction
+        }
+    }
     BackHandler {
         onBack()
     }
@@ -60,16 +82,21 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
         bottomEnd = wi?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)?.radius?.toFloat() ?: 0f,
         bottomStart = wi?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)?.radius?.toFloat() ?: 0f,
     )
+    val density = LocalDensity.current.density
     Box(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer(
-                alpha = alpha,
                 scaleX = scale,
                 scaleY = scale,
-                translationX = width - width * fraction,
+                translationX = translationX,
+                transformOrigin = TransformOrigin(0f, 0.5f),
+                clip = true,
+                shape = corners,
+                shadowElevation = if (isLoading) density * 8 else 0f,
             )
-            .clip(shape = corners),
+            .background(color = Color.White)
+            .graphicsLayer(alpha = alpha),
     ) {
         FooDetailScreen(foo = foo)
     }
@@ -81,7 +108,7 @@ internal fun FooDetailScreen(foo: Foo) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.Green),
+            .background(color = Color.White),
     ) {
         Column(
             modifier = Modifier
