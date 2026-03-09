@@ -1,5 +1,6 @@
 package test.android.routes
 
+import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -26,6 +27,7 @@ import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
+import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
 @Composable
@@ -54,15 +56,26 @@ internal fun TestScreen() {
                         .fillMaxSize(),
                     route = "test",
                 ) {
-                    val fraction = animateFloat(
-                        duration = 2.seconds,
-                        easing = LinearEasing,
+                    val duration = 250.milliseconds
+//                    val duration = 2.seconds
+//                    val easing = LinearEasing
+                    val easing = FastOutSlowInEasing
+                    val alpha = 1f * animateFloat(
+                        duration = duration,
+                        easing = easing,
                         isForward = state.has(route = "test"),
                     )
-                    val alpha = 1f * fraction
                     val width = LocalWindowInfo.current.containerSize.width
-                    val x = width - width.times(fraction)
-                    val scale = 0.75f + 0.25f * fraction
+                    val x = width - width * animateFloat(
+                        duration = duration,
+                        easing = easing,
+                        isForward = state.has(route = "test"),
+                    )
+                    val scale = 0.9f + 0.1f * animateFloat(
+                        duration = duration,
+                        easing = easing,
+                        isForward = state.has(route = "test"),
+                    )
                     Box(
                         modifier = Modifier
                             .fillMaxSize()
