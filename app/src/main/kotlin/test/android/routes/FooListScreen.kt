@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -63,6 +64,7 @@ internal fun RoutesAnimationsScope.FooListScreen(
             ),
     ) {
         val list = remember {
+            // todo
             (0 until 32).map { index ->
                 Foo(
                     id = UUID(0, index.toLong()),
@@ -71,17 +73,33 @@ internal fun RoutesAnimationsScope.FooListScreen(
                 )
             }
         }
-        FooListScreen(list = list)
+        FooListScreen(
+            list = list,
+            toDetail = {
+                routes.next("foo:detail")
+            },
+        )
+    }
+    RoutesAnimations(
+        modifier = Modifier.fillMaxSize(),
+        route = "foo:detail",
+    ) {
+        FooDetailScreen(
+            onBack = routes::back,
+        )
     }
 }
 
 @Composable
-internal fun FooListScreen(list: List<Foo>) {
+internal fun FooListScreen(
+    list: List<Foo>,
+    toDetail: (Foo) -> Unit,
+) {
     val insets = WindowInsets.systemBars.asPaddingValues()
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(color = Color.White),
+            .background(color = Color.Red),
     ) {
         LazyColumn(
             modifier = Modifier.fillMaxSize(),
@@ -96,7 +114,12 @@ internal fun FooListScreen(list: List<Foo>) {
                         number: ${foo.number}
                     """.trimIndent()
                     BasicText(
-                        modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clickable {
+                                toDetail(foo)
+                            }
+                            .padding(horizontal = 16.dp),
                         text = text,
                     )
                 }
