@@ -1,6 +1,8 @@
 package test.android.routes
 
+import android.view.RoundedCorner
 import androidx.activity.compose.BackHandler
+import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
@@ -12,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalWindowInfo
@@ -34,8 +38,8 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
 ) {
     val routes = LocalRoutes.current
     val state = routes.states.collectAsState().value
-    val duration = 250.milliseconds
-//    val duration = 1.seconds
+//    val duration = 250.milliseconds
+    val duration = 1.seconds
 //    val easing = LinearEasing
     val easing = FastOutSlowInEasing
     val fraction = animateFloat(
@@ -45,18 +49,27 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
     )
     val width = LocalWindowInfo.current.containerSize.width
     val scale = 0.9f + 0.1f * fraction
+    val alpha = 0.5f + 0.5f * fraction
     BackHandler {
         onBack()
     }
+    val wi = LocalActivity.current?.window?.decorView?.rootWindowInsets
+    val corners = RoundedCornerShape(
+        topStart = wi?.getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)?.radius?.toFloat() ?: 0f,
+        topEnd = wi?.getRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT)?.radius?.toFloat() ?: 0f,
+        bottomEnd = wi?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)?.radius?.toFloat() ?: 0f,
+        bottomStart = wi?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)?.radius?.toFloat() ?: 0f,
+    )
     Box(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer(
-                alpha = fraction,
+                alpha = alpha,
                 scaleX = scale,
                 scaleY = scale,
                 translationX = width - width * fraction,
-            ),
+            )
+            .clip(shape = corners),
     ) {
         FooDetailScreen(foo = foo)
     }

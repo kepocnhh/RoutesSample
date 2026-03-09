@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.statusBars
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.CornerSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicText
 import androidx.compose.runtime.Composable
@@ -25,6 +26,7 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.graphicsLayer
 import androidx.compose.ui.platform.LocalContext
@@ -41,8 +43,8 @@ internal fun RoutesAnimationsScope.FooListScreen(
 ) {
     val routes = LocalRoutes.current
     val state = routes.states.collectAsState().value
-    val duration = 250.milliseconds
-//    val duration = 1.seconds
+//    val duration = 250.milliseconds
+    val duration = 1.seconds
 //    val easing = LinearEasing
     val easing = FastOutSlowInEasing
     val fraction = animateFloat(
@@ -52,36 +54,40 @@ internal fun RoutesAnimationsScope.FooListScreen(
     )
     val width = LocalWindowInfo.current.containerSize.width
     val scale = 0.9f + 0.1f * fraction
-    val w = animateFloat(
-        duration = duration,
-        easing = easing,
-        isForward = state.isCurrent(name = "foo:list"),
-    )
+    val alpha = 0.5f + 0.5f * fraction
     val translationX = if (state.isCurrent(name = "foo:list")) {
         if (state.toForward()) {
-            width - width * w
+            width - width * fraction
         } else {
-            width * w - width
+            width * fraction - width
         }
     } else {
         if (state.has(name = "foo:list")) {
-            width * w - width
+            width * fraction - width
         } else {
-            width - width * w
+            width - width * fraction
         }
     }
     BackHandler {
         onBack()
     }
+    val wi = LocalActivity.current?.window?.decorView?.rootWindowInsets
+    val corners = RoundedCornerShape(
+        topStart = wi?.getRoundedCorner(RoundedCorner.POSITION_TOP_LEFT)?.radius?.toFloat() ?: 0f,
+        topEnd = wi?.getRoundedCorner(RoundedCorner.POSITION_TOP_RIGHT)?.radius?.toFloat() ?: 0f,
+        bottomEnd = wi?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_RIGHT)?.radius?.toFloat() ?: 0f,
+        bottomStart = wi?.getRoundedCorner(RoundedCorner.POSITION_BOTTOM_LEFT)?.radius?.toFloat() ?: 0f,
+    )
     Box(
         modifier = Modifier
             .fillMaxSize()
             .graphicsLayer(
-                alpha = fraction,
+                alpha = alpha,
                 scaleX = scale,
                 scaleY = scale,
                 translationX = translationX,
-            ),
+            )
+            .clip(shape = corners),
     ) {
         val list = remember {
             // todo
