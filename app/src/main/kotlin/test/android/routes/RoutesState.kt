@@ -18,6 +18,10 @@ class RoutesState(
         return route == previous
     }
 
+    fun isForward(): Boolean {
+        return stack.getOrNull(stack.size - 2) == previous
+    }
+
     override fun equals(other: Any?): Boolean {
         return when (other) {
             is RoutesState -> stack == other.stack && previous == other.previous

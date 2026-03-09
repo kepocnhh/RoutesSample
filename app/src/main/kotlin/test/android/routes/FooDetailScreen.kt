@@ -2,6 +2,7 @@ package test.android.routes
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -24,6 +25,7 @@ import androidx.compose.ui.unit.dp
 import test.android.routes.entity.Foo
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun RoutesAnimationsScope.FooDetailScreen(
@@ -32,7 +34,7 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
     val routes = LocalRoutes.current
     val state = routes.states.collectAsState().value
     val duration = 250.milliseconds
-//    val duration = 2.seconds
+//    val duration = 1.seconds
 //    val easing = LinearEasing
     val easing = FastOutSlowInEasing
     val fraction = animateFloat(

@@ -4,6 +4,7 @@ import android.view.RoundedCorner
 import androidx.activity.compose.BackHandler
 import androidx.activity.compose.LocalActivity
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.LinearEasing
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -32,6 +33,7 @@ import androidx.compose.ui.unit.dp
 import test.android.routes.entity.Foo
 import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
+import kotlin.time.Duration.Companion.seconds
 
 @Composable
 internal fun RoutesAnimationsScope.FooListScreen(
@@ -40,16 +42,34 @@ internal fun RoutesAnimationsScope.FooListScreen(
     val routes = LocalRoutes.current
     val state = routes.states.collectAsState().value
     val duration = 250.milliseconds
-//    val duration = 2.seconds
+//    val duration = 1.seconds
 //    val easing = LinearEasing
     val easing = FastOutSlowInEasing
     val fraction = animateFloat(
         duration = duration,
         easing = easing,
-        isForward = state.has(route = "foo:list"),
+        isForward = state.isCurrent(route = "foo:list"),
     )
     val width = LocalWindowInfo.current.containerSize.width
     val scale = 0.9f + 0.1f * fraction
+    val w = animateFloat(
+        duration = duration,
+        easing = easing,
+        isForward = state.isCurrent(route = "foo:list"),
+    )
+    val translationX = if (state.isCurrent(route = "foo:list")) {
+        if (state.isForward()) {
+            width - width * w
+        } else {
+            width * w - width
+        }
+    } else {
+        if (state.has(route = "foo:list")) {
+            width * w - width
+        } else {
+            width - width * w
+        }
+    }
     BackHandler {
         onBack()
     }
@@ -60,7 +80,7 @@ internal fun RoutesAnimationsScope.FooListScreen(
                 alpha = fraction,
                 scaleX = scale,
                 scaleY = scale,
-                translationX = width - width * fraction,
+                translationX = translationX,
             ),
     ) {
         val list = remember {
