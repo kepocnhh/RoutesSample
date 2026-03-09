@@ -46,6 +46,8 @@ internal fun MainScreen() {
         modifier = Modifier.fillMaxSize(),
         route = "foo:list",
     ) {
-        FooListScreen()
+        FooListScreen(
+            onBack = routes::back,
+        )
     }
 }
