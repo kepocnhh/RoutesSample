@@ -33,3 +33,31 @@ fun RoutesAnimations(
         }
     }
 }
+
+@Composable
+fun <T : Any> RoutesAnimations(
+    modifier: Modifier,
+    type: Class<T>,
+    name: String = type.name,
+    routes: Routes = LocalRoutes.current,
+    content: @Composable RoutesAnimationsScope.(payload: T?) -> Unit,
+) {
+    val scope = remember { RoutesAnimationsScope() }
+    val state = routes.states.collectAsState().value
+    val isLoading = scope._actions.collectAsState().value.isNotEmpty()
+    LaunchedEffect(Unit) {
+        scope._actions.collect { actions ->
+            if (actions.values.contains(true)) {
+                routes._actions.value += name
+            } else {
+                routes._actions.value -= name
+            }
+        }
+    }
+    if (state.has(name = name) || isLoading) {
+        val payload = remember { state.getPayload(name = name, type = type) }
+        Box(modifier = modifier) {
+            scope.content(payload)
+        }
+    }
+}

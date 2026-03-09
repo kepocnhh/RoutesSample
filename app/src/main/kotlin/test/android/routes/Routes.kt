@@ -48,7 +48,15 @@ class Routes(
         // todo
     }
 
-    fun <T : Any> next(name: String, payload: T?) {
+    fun next(name: String) {
+        next(name = name, payload = null)
+    }
+
+    inline fun <reified T : Any> next(payload: T) {
+        next(name = T::class.java.name, payload = payload)
+    }
+
+    fun next(name: String, payload: Any?) {
         coroutineScope.launch {
             withContext(default) {
                 _states.value = mutex.withLock {

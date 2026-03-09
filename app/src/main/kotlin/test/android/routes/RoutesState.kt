@@ -18,6 +18,11 @@ class RoutesState(
         return name == route?.name
     }
 
+    fun <T : Any> isCurrent(type: Class<T>): Boolean {
+        val route = stack.lastOrNull()
+        return type.name == route?.name
+    }
+
     fun isPrevious(name: String): Boolean {
         return name == previous?.name
     }
@@ -29,17 +34,13 @@ class RoutesState(
         return stack[stack.size - 2].name == previous?.name
     }
 
-    fun <T : Any> getPayload(name: String): T? {
+    fun <T : Any> getPayload(name: String, type: Class<T>): T? {
         for (route in stack) {
             if (route.name == name) {
-                return if (route.payload == null) {
-                    null
-                } else {
-                    route.payload as T
-                }
+                return type.cast(route.payload)
             }
         }
-        TODO()
+        TODO("not found $name")
     }
 
     override fun equals(other: Any?): Boolean {

@@ -96,20 +96,16 @@ internal fun RoutesAnimationsScope.FooListScreen(
         FooListScreen(
             list = list,
             toDetail = { foo ->
-                routes.next(
-                    name = "foo:detail",
-                    payload = FooDetailScreen.Route(foo = foo),
-                )
+                routes.next(payload = foo)
             },
         )
     }
     RoutesAnimations(
         modifier = Modifier.fillMaxSize(),
-        name = "foo:detail",
-    ) {
-        val route = remember { state.getPayload<FooDetailScreen.Route>(name = "foo:detail") }
+        type = Foo::class.java,
+    ) { foo ->
         FooDetailScreen(
-            route = route ?: TODO(),
+            foo = foo ?: TODO(),
             onBack = routes::back,
         )
     }

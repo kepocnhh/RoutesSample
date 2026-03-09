@@ -27,13 +27,9 @@ import java.util.UUID
 import kotlin.time.Duration.Companion.milliseconds
 import kotlin.time.Duration.Companion.seconds
 
-internal object FooDetailScreen {
-    data class Route(val foo: Foo)
-}
-
 @Composable
 internal fun RoutesAnimationsScope.FooDetailScreen(
-    route: FooDetailScreen.Route,
+    foo: Foo,
     onBack: () -> Unit,
 ) {
     val routes = LocalRoutes.current
@@ -45,7 +41,7 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
     val fraction = animateFloat(
         duration = duration,
         easing = easing,
-        isForward = state.has(name = "foo:detail"),
+        isForward = state.isCurrent(type = Foo::class.java),
     )
     val width = LocalWindowInfo.current.containerSize.width
     val scale = 0.9f + 0.1f * fraction
@@ -62,7 +58,7 @@ internal fun RoutesAnimationsScope.FooDetailScreen(
                 translationX = width - width * fraction,
             ),
     ) {
-        FooDetailScreen(foo = route.foo)
+        FooDetailScreen(foo = foo)
     }
 }
 
