@@ -20,7 +20,7 @@ class Routes(
     private val mutex = Mutex()
     private val _states = MutableStateFlow(RoutesState(stack = stack, previous = null))
     val states = _states.asStateFlow()
-    private val _actions = MutableStateFlow<Set<String>>(emptySet())
+    internal val _actions = MutableStateFlow<Set<String>>(emptySet())
     val loading = object : StateFlow<Boolean> {
         override val value: Boolean get() = _actions.value.isNotEmpty()
         override val replayCache: List<Boolean> = emptyList()

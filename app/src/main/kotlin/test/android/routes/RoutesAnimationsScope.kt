@@ -7,12 +7,13 @@ import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import kotlinx.coroutines.flow.MutableStateFlow
-import java.util.UUID
+import java.util.concurrent.atomic.AtomicInteger
 import java.util.concurrent.atomic.AtomicLong
 import kotlin.time.Duration
 
 class RoutesAnimationsScope {
-    internal val _actions = MutableStateFlow<Set<UUID>>(emptySet())
+    internal val _actions = MutableStateFlow<Map<Int, Boolean>>(emptyMap())
+    private val indices = AtomicInteger()
 
     @Composable
     fun animateFloat(
@@ -20,14 +21,13 @@ class RoutesAnimationsScope {
         easing: Easing,
         isForward: Boolean,
     ): Float {
-        val closed = remember { MutableStateFlow(true) }
-        val id = remember { UUID.randomUUID() }
+        val states = remember { MutableStateFlow<Boolean?>(null) }
+        val id = remember { indices.incrementAndGet() }
         LaunchedEffect(Unit) {
-            closed.collect { isClosed ->
-                if (isClosed) {
-                    _actions.value -= id
-                } else {
-                    _actions.value += id
+            states.collect { state ->
+                when (state) {
+                    null -> _actions.value -= id
+                    else -> _actions.value += id to state
                 }
             }
         }
@@ -42,7 +42,7 @@ class RoutesAnimationsScope {
                 val timeNow = withFrameNanos { it }
                 val timeStart = timeNow - timeLeft
                 while (true) {
-                    closed.value = false
+                    states.value = true
                     val timePassed = withFrameNanos { it - timeStart }
                     if (timePassed < timeNanos) {
                         timeLeftState.set(timeNanos - timePassed)
@@ -59,7 +59,7 @@ class RoutesAnimationsScope {
                     }
                 }
             }
-            closed.value = !isForward
+            states.value = if (isForward) false else null
         }
         return values.floatValue
     }
